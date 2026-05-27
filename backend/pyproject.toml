@@ -56,6 +56,9 @@ addopts = "--cov=app --cov-report=term-missing --cov-fail-under=85"
 [tool.coverage.run]
 concurrency = ["greenlet", "thread"]
 
+[tool.setuptools.packages.find]
+include = ["app*"]
+
 [build-system]
 requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
