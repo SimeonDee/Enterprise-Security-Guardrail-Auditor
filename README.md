@@ -303,7 +303,7 @@ This project was built using **AI-assisted development** with **GitHub Copilot (
 
 ## Author
 
-**Simeon Adedokun**
+**Adedoyin Simeon Adeyemi**
 
 - GitHub: [@SimeonDee](https://github.com/SimeonDee)
 
