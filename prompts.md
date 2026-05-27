@@ -194,3 +194,52 @@ Push current code to GitHub (with approval), then build the Terraform security s
 - Created 7 test files in `tests/scanner/` with comprehensive coverage
 - Created `docs/security-rules.md` with full rule reference + custom rule guide
 - Result: 91 tests pass, 95.2% coverage
+
+---
+
+## Turn 5 — Scan API Layer
+**Timestamp:** 2026-05-27 T+25min
+
+### Exact Prompt
+> SCAN API LAYER
+>
+> Implement REST API for scanning functionality.
+>
+> Endpoints:
+> - POST /api/v1/scans (upload Terraform file or folder)
+> - GET /api/v1/scans
+> - GET /api/v1/scans/{scan_id}
+>
+> Requirements:
+> - Service layer contains business logic (controllers must be thin)
+> - Store scan results in SQLite via SQLAlchemy
+> - Pagination support for scan history
+> - Input validation via Pydantic
+> - Proper structured API error handling
+> - OpenAPI documentation enabled
+>
+> Constraints:
+> - Fully async compatible
+> - Clean separation: API → Service → Scanner engine → DB
+>
+> Testing:
+> - Integration tests for API endpoints
+>
+> Update:
+> - docs/api-reference.md
+> - prompts.md
+> - to-do.md
+
+### Summary
+Refactor scan endpoints for clean API → Service → Engine → DB separation. Add paginated list endpoint, file upload via multipart form, thin controllers with service-layer business logic, and comprehensive integration tests.
+
+### Action
+- Pushed scanner engine commit (`33c5740`) to GitHub
+- Enhanced `schemas/scan.py` — added generic `PaginatedResponse[T]` model with total/page/page_size/total_pages
+- Refactored `services/scanner.py` — added `list_scans()` (pagination + status/file_type filters), `get_scan()`, `delete_scan()` methods to move all DB logic out of controllers
+- Rewrote `api/v1/endpoints/scans.py` — thin controllers delegating to ScannerService via DI (`_get_service` factory), added `POST /scans/upload` for `.tf` file upload with validation
+- Added `python-multipart` dependency to `pyproject.toml` for file upload support
+- Created `docs/api-reference.md` — full API reference for all endpoints
+- Updated existing `test_list_scans` for paginated response format
+- Added 6 new integration tests: pagination, status filter, file_type filter, upload success, upload non-tf rejection, upload empty rejection
+- Result: 97 tests pass, 95.31% coverage

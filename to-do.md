@@ -32,15 +32,19 @@
 - [x] Engine integrated with existing ScannerService (dual-path + dedup)
 - [x] 53 scanner tests + 38 integration tests = 91 total, 95.2% coverage
 - [x] docs/security-rules.md — rule reference + custom rule guide
+- [x] Scan API layer — thin controllers, service-layer business logic
+- [x] Paginated scan list endpoint with status/file_type filters
+- [x] File upload endpoint (POST /scans/upload) for .tf files
+- [x] PaginatedResponse generic schema
+- [x] docs/api-reference.md — full API reference
+- [x] 97 tests, 95.31% coverage
 
 ## 🔲 Next Up (MVP Completion)
 - [ ] Seed guardrails on first startup (auto-seed endpoint or startup event)
-- [ ] File upload endpoint (multipart form) as alternative to paste
 - [ ] CloudFormation YAML/JSON parsing support in scanner
 - [ ] Add more guardrail rules (Azure, GCP)
 - [ ] Error boundary in React frontend
 - [ ] Loading states / skeleton loaders
-- [ ] Pagination on scan list
 - [ ] API key authentication middleware
 - [ ] Export scan results as PDF/CSV
 - [ ] CI/CD pipeline (GitHub Actions)

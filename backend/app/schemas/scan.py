@@ -1,8 +1,11 @@
 from datetime import datetime
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.scan import FileType, ScanStatus
+
+T = TypeVar("T")
 
 
 class ScanCreate(BaseModel):
@@ -44,3 +47,13 @@ class ViolationResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    """Generic paginated response wrapper."""
+
+    items: list[T]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

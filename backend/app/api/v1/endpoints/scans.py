@@ -1,53 +1,92 @@
-from fastapi import APIRouter, Depends, status
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import ValidationError
 from app.database import get_db
-from app.models.scan import Scan
-from app.schemas.scan import ScanCreate, ScanDetailResponse, ScanResponse
+from app.models.scan import FileType, ScanStatus
+from app.schemas.scan import (
+    PaginatedResponse,
+    ScanCreate,
+    ScanDetailResponse,
+    ScanResponse,
+)
 from app.services.scanner import ScannerService
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[ScanResponse])
+def _get_service(db: AsyncSession = Depends(get_db)) -> ScannerService:
+    return ScannerService(db)
+
+
+@router.get("/", response_model=PaginatedResponse[ScanResponse])
 async def list_scans(
-    skip: int = 0,
-    limit: int = 50,
-    db: AsyncSession = Depends(get_db),
-) -> list[Scan]:
-    stmt = select(Scan).order_by(Scan.created_at.desc()).offset(skip).limit(limit)
-    result = await db.execute(stmt)
-    return list(result.scalars().all())
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    status: ScanStatus | None = Query(None, description="Filter by scan status"),
+    file_type: FileType | None = Query(None, description="Filter by file type"),
+    service: ScannerService = Depends(_get_service),
+) -> PaginatedResponse[ScanResponse]:
+    return await service.list_scans(
+        page=page, page_size=page_size, status=status, file_type=file_type
+    )
 
 
 @router.post(
     "/", response_model=ScanDetailResponse, status_code=status.HTTP_201_CREATED
 )
-async def create_scan(payload: ScanCreate, db: AsyncSession = Depends(get_db)) -> Scan:
-    service = ScannerService(db)
+async def create_scan(
+    payload: ScanCreate,
+    service: ScannerService = Depends(_get_service),
+) -> ScanDetailResponse:
     scan = await service.run_scan(payload)
-    return scan
+    return ScanDetailResponse.model_validate(scan)
+
+
+@router.post(
+    "/upload",
+    response_model=ScanDetailResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_scan(
+    file: UploadFile,
+    name: str = Query(..., min_length=1, max_length=255, description="Scan name"),
+    service: ScannerService = Depends(_get_service),
+) -> ScanDetailResponse:
+    """Upload a .tf file and run a security scan against it."""
+    if not file.filename:
+        raise ValidationError("Uploaded file must have a filename.")
+    if not file.filename.endswith(".tf"):
+        raise ValidationError("Only Terraform (.tf) files are supported.")
+
+    content_bytes = await file.read()
+    if not content_bytes:
+        raise ValidationError("Uploaded file is empty.")
+
+    source_content = content_bytes.decode("utf-8")
+
+    payload = ScanCreate(
+        name=name,
+        file_type=FileType.TERRAFORM,
+        source_content=source_content,
+        file_name=file.filename,
+    )
+    scan = await service.run_scan(payload)
+    return ScanDetailResponse.model_validate(scan)
 
 
 @router.get("/{scan_id}", response_model=ScanDetailResponse)
-async def get_scan(scan_id: int, db: AsyncSession = Depends(get_db)) -> Scan:
-    stmt = select(Scan).where(Scan.id == scan_id).options(selectinload(Scan.violations))
-    result = await db.execute(stmt)
-    scan = result.scalars().first()
-    if not scan:
-        raise NotFoundError("Scan", scan_id)
-    return scan
+async def get_scan(
+    scan_id: int,
+    service: ScannerService = Depends(_get_service),
+) -> ScanDetailResponse:
+    scan = await service.get_scan(scan_id)
+    return ScanDetailResponse.model_validate(scan)
 
 
 @router.delete("/{scan_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_scan(scan_id: int, db: AsyncSession = Depends(get_db)) -> None:
-    stmt = select(Scan).where(Scan.id == scan_id)
-    result = await db.execute(stmt)
-    scan = result.scalars().first()
-    if not scan:
-        raise NotFoundError("Scan", scan_id)
-    await db.delete(scan)
-    await db.commit()
+async def delete_scan(
+    scan_id: int,
+    service: ScannerService = Depends(_get_service),
+) -> None:
+    await service.delete_scan(scan_id)

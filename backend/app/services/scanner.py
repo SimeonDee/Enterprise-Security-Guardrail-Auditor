@@ -1,16 +1,18 @@
+import math
 import re
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.exceptions import NotFoundError
 from app.models.guardrail import Guardrail
 from app.models.scan import FileType, Scan, ScanStatus
 from app.models.violation import Violation
 from app.scanner.engine import ScanEngine
 from app.scanner.models import ScanResult as EngineScanResult
-from app.schemas.scan import ScanCreate
+from app.schemas.scan import PaginatedResponse, ScanCreate, ScanResponse
 
 # Severity weights for risk score calculation
 SEVERITY_WEIGHTS = {
@@ -26,6 +28,67 @@ class ScannerService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
         self._engine = ScanEngine()
+
+    # ------------------------------------------------------------------
+    # Public API — called by thin controllers
+    # ------------------------------------------------------------------
+
+    async def list_scans(
+        self,
+        page: int = 1,
+        page_size: int = 20,
+        status: ScanStatus | None = None,
+        file_type: FileType | None = None,
+    ) -> PaginatedResponse[ScanResponse]:
+        """Return paginated scan list with optional filters."""
+        base = select(Scan)
+        count_base = select(func.count(Scan.id))
+
+        if status is not None:
+            base = base.where(Scan.status == status)
+            count_base = count_base.where(Scan.status == status)
+        if file_type is not None:
+            base = base.where(Scan.file_type == file_type)
+            count_base = count_base.where(Scan.file_type == file_type)
+
+        total = (await self.db.execute(count_base)).scalar() or 0
+        total_pages = max(1, math.ceil(total / page_size))
+
+        offset = (page - 1) * page_size
+        stmt = base.order_by(Scan.created_at.desc()).offset(offset).limit(page_size)
+        result = await self.db.execute(stmt)
+        scans = list(result.scalars().all())
+
+        return PaginatedResponse[ScanResponse](
+            items=[ScanResponse.model_validate(s) for s in scans],
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+        )
+
+    async def get_scan(self, scan_id: int) -> Scan:
+        """Fetch a single scan with violations eagerly loaded."""
+        stmt = (
+            select(Scan)
+            .where(Scan.id == scan_id)
+            .options(selectinload(Scan.violations))
+        )
+        result = await self.db.execute(stmt)
+        scan = result.scalars().first()
+        if not scan:
+            raise NotFoundError("Scan", scan_id)
+        return scan
+
+    async def delete_scan(self, scan_id: int) -> None:
+        """Delete a scan and its violations."""
+        stmt = select(Scan).where(Scan.id == scan_id)
+        result = await self.db.execute(stmt)
+        scan = result.scalars().first()
+        if not scan:
+            raise NotFoundError("Scan", scan_id)
+        await self.db.delete(scan)
+        await self.db.commit()
 
     async def run_scan(self, payload: ScanCreate) -> Scan:
         scan = Scan(
