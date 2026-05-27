@@ -8,6 +8,8 @@ from sqlalchemy.orm import selectinload
 from app.models.guardrail import Guardrail
 from app.models.scan import FileType, Scan, ScanStatus
 from app.models.violation import Violation
+from app.scanner.engine import ScanEngine
+from app.scanner.models import ScanResult as EngineScanResult
 from app.schemas.scan import ScanCreate
 
 # Severity weights for risk score calculation
@@ -23,6 +25,7 @@ SEVERITY_WEIGHTS = {
 class ScannerService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
+        self._engine = ScanEngine()
 
     async def run_scan(self, payload: ScanCreate) -> Scan:
         scan = Scan(
@@ -35,11 +38,34 @@ class ScannerService:
         self.db.add(scan)
         await self.db.flush()
 
+        # --- New engine-based scanning ---
+        engine_result = self._engine.scan(
+            content=payload.source_content,
+            file_name=payload.file_name,
+        )
+
+        # --- Legacy DB-rule scanning (keeps backward compat) ---
         stmt = select(Guardrail).where(Guardrail.enabled == True)  # noqa: E712
         result = await self.db.execute(stmt)
         guardrails = result.scalars().all()
 
         violations: list[Violation] = []
+
+        # Violations from new engine
+        for finding in engine_result.findings:
+            violation = Violation(
+                scan_id=scan.id,
+                guardrail_id=None,
+                resource_name=finding.resource_name,
+                file_path=finding.file_path,
+                line_number=finding.line_number,
+                severity=finding.severity,
+                message=f"[{finding.rule_id}] {finding.message}",
+                remediation=finding.remediation,
+            )
+            violations.append(violation)
+
+        # Violations from legacy DB guardrails
         for guardrail in guardrails:
             found = self._check_pattern(
                 content=payload.source_content,
@@ -50,10 +76,23 @@ class ScannerService:
             )
             violations.extend(found)
 
-        self.db.add_all(violations)
+        # Deduplicate by (resource_name, severity, line_number)
+        seen: set[tuple[str, str, int | None]] = set()
+        unique_violations: list[Violation] = []
+        for v in violations:
+            key = (v.resource_name, v.severity, v.line_number)
+            if key not in seen:
+                seen.add(key)
+                unique_violations.append(v)
 
-        scan.total_violations = len(violations)
-        scan.risk_score = self._calculate_risk_score(violations)
+        self.db.add_all(unique_violations)
+
+        scan.total_violations = len(unique_violations)
+        scan.risk_score = (
+            engine_result.risk_score
+            if engine_result.findings
+            else self._calculate_risk_score(unique_violations)
+        )
         scan.status = ScanStatus.COMPLETED
         scan.completed_at = datetime.now(timezone.utc)
 

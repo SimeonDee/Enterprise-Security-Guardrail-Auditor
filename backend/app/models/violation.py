@@ -12,8 +12,8 @@ class Violation(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     scan_id: Mapped[int] = mapped_column(ForeignKey("scans.id"), nullable=False)
-    guardrail_id: Mapped[int] = mapped_column(
-        ForeignKey("guardrails.id"), nullable=False
+    guardrail_id: Mapped[int | None] = mapped_column(
+        ForeignKey("guardrails.id"), nullable=True
     )
     resource_name: Mapped[str] = mapped_column(String(255), nullable=False)
     file_path: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -26,7 +26,7 @@ class Violation(Base):
     )
 
     scan: Mapped["Scan"] = relationship(back_populates="violations")
-    guardrail: Mapped["Guardrail"] = relationship(back_populates="violations")
+    guardrail: Mapped["Guardrail | None"] = relationship(back_populates="violations")
 
     def __repr__(self) -> str:
         return f"<Violation {self.resource_name} [{self.severity}]>"

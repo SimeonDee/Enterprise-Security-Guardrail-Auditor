@@ -34,7 +34,7 @@ class ScanDetailResponse(ScanResponse):
 class ViolationResponse(BaseModel):
     id: int
     scan_id: int
-    guardrail_id: int
+    guardrail_id: int | None = None
     resource_name: str
     file_path: str
     line_number: int | None = None

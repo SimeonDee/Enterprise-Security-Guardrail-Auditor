@@ -24,6 +24,14 @@
 - [x] Structured logging setup
 - [x] Alembic migration setup (async env.py + initial migration)
 - [x] All tests converted to async (38 tests, 95% coverage)
+- [x] Security Scanner Engine — layered architecture (parser → rules → scoring → engine)
+- [x] Terraform parser with HCL block extraction + heredoc support
+- [x] 5 security rules: S3 public, Open SSH, Public DB, Disabled Encryption, Wildcard IAM
+- [x] BaseRule ABC + RuleRegistry for extensible rule system
+- [x] Risk scoring engine (0–100 weighted score)
+- [x] Engine integrated with existing ScannerService (dual-path + dedup)
+- [x] 53 scanner tests + 38 integration tests = 91 total, 95.2% coverage
+- [x] docs/security-rules.md — rule reference + custom rule guide
 
 ## 🔲 Next Up (MVP Completion)
 - [ ] Seed guardrails on first startup (auto-seed endpoint or startup event)
