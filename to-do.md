@@ -55,6 +55,16 @@
 - [x] TYPE_CHECKING imports for mypy forward-ref resolution
 - [x] docs/security-audit.md — full security findings report
 - [x] docs/qa-report.md — comprehensive QA report
+- [x] Backend Dockerfile — multi-stage, non-root, healthcheck
+- [x] Frontend Dockerfile — multi-stage, build args, healthcheck
+- [x] docker-compose.yml — SQLite persistence, healthchecks, env_file
+- [x] GitHub Actions CI — lint + test + docker-build (5 jobs)
+- [x] Pre-commit hooks — ruff, black, mypy, security checks
+- [x] Makefile — 12 developer shortcut commands
+- [x] Environment variable management (.env.example, .env.docker)
+- [x] .dockerignore files (backend + frontend)
+- [x] docs/deployment.md — Docker deployment guide
+- [x] docs/dev-workflow.md — developer workflow guide
 
 ## 🔲 Next Up (MVP Completion)
 - [ ] Seed guardrails on first startup (auto-seed endpoint or startup event)
@@ -64,7 +74,6 @@
 - [ ] ESLint config for frontend (eslint.config.js)
 - [ ] API key authentication middleware
 - [ ] Export scan results as PDF/CSV
-- [ ] CI/CD pipeline (GitHub Actions)
 
 ## 🔮 Post-MVP
 - [ ] Authentication / Authorization (JWT/OAuth2)

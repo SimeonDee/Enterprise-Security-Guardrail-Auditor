@@ -367,3 +367,55 @@ Full QA and security audit across the entire codebase. Deep audit identified 26 
 - Generated `docs/security-audit.md` — full 26-finding report with severity/status/remediation
 - Generated `docs/qa-report.md` — comprehensive QA report across all 8 audit dimensions
 - Backend: 97 tests, 94.65% coverage. Frontend: 24 tests, 0 TypeScript errors.
+
+---
+
+## Turn 8 — DevOps + Deployment Readiness
+**Timestamp:** 2026-05-27 T+50min
+
+### Exact Prompt
+> DEVOPS + DEPLOYMENT READINESS
+>
+> Add full local deployment and CI pipeline.
+>
+> Requirements:
+> - Backend Dockerfile
+> - Frontend Dockerfile
+> - docker-compose.yml (backend + frontend + sqlite persistence)
+> - GitHub Actions CI:
+>   - install dependencies
+>   - run tests
+>   - run lint checks
+> - pre-commit hooks configuration
+> - environment variable management
+>
+> Documentation:
+> - docs/deployment.md
+> - docs/dev-workflow.md
+>
+> Constraints:
+> - No Kubernetes
+> - No cloud infra (MVP scope only)
+>
+> Update:
+> - prompts.md
+> - to-do.md
+
+### Summary
+Full DevOps and deployment readiness pass. Hardened Dockerfiles (multi-stage, non-root, healthchecks), production docker-compose with SQLite persistence, GitHub Actions CI pipeline (4 parallel jobs + Docker build gate), pre-commit hooks, Makefile for developer shortcuts, and env variable management.
+
+### Action
+- Updated `backend/Dockerfile` — multi-stage build, non-root `appuser`, healthcheck, data volume
+- Updated `frontend/Dockerfile` — `npm ci`, `VITE_API_BASE_URL` build arg, pinned nginx 1.27, healthcheck
+- Updated `docker-compose.yml` — named volume `sqlite-data`, healthchecks, `depends_on: service_healthy`, env_file, configurable ports
+- Created `.github/workflows/ci.yml` — 5 jobs: backend-lint, backend-test, frontend-lint, frontend-test, docker-build (gated on tests)
+- Created `.pre-commit-config.yaml` — ruff, black, mypy, trailing-whitespace, end-of-file-fixer, check-yaml, check-json, detect-private-key, check-added-large-files
+- Created `Makefile` — 12 developer commands (install, hooks, backend, frontend, lint, test, docker-up, etc.)
+- Created `backend/.env.example` — full env variable template
+- Created `backend/.env.docker` — Docker-specific env overrides
+- Created `.env.example` — root port configuration template
+- Created `backend/.dockerignore` and `frontend/.dockerignore`
+- Updated `.gitignore` — env file patterns
+- Added `pre-commit>=3.7.0` to backend dev dependencies
+- Generated `docs/deployment.md` — Docker deployment guide with architecture diagram, operations, backup/restore
+- Generated `docs/dev-workflow.md` — developer setup, daily workflow, pre-commit, CI pipeline, Makefile reference, troubleshooting

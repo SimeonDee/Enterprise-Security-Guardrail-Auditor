@@ -27,3 +27,9 @@ frontend/coverage/
 
 # Docker
 *.log
+
+# Environment (keep .env.example, ignore actual .env)
+backend/.env
+backend/.env.docker
+!backend/.env.example
+!.env.example
