@@ -180,9 +180,132 @@ cd frontend && npm test
 | [Presentation](docs/presentation.md) | Project overview slides |
 | [Final Summary](docs/final-summary.md) | Project retrospective |
 
-## Development Workflow
+## Sample Test Files
 
-This project was built using **AI-assisted development** with **GitHub Copilot (Claude Opus 4.6)**. Every prompt and action is recorded in [prompts.md](prompts.md). The full development — from scaffold to production-ready MVP — was completed in 9 turns (~55 minutes of interaction time).
+The `samples/` directory contains intentionally vulnerable Terraform configurations for testing:
+
+| File | Vulnerabilities | Purpose |
+|------|----------------|---------|
+| [vulnerable-infra.tf](samples/vulnerable-infra.tf) | 11 findings | Core rule coverage (S3, SSH, DB, encryption, IAM) |
+| [multi-service-vulnerable.tf](samples/multi-service-vulnerable.tf) | 9 findings | Edge cases (wide port ranges, group policies, authenticated-read) |
+
+Upload these via the dashboard or API to validate the scanner end-to-end.
+
+## Contributing
+
+Contributions are welcome. Please follow the workflow below to keep the codebase clean and consistent.
+
+### Branch Naming Convention
+
+```
+<type>/<short-description>
+```
+
+| Type | Use case | Example |
+|------|----------|---------|
+| `feat/` | New feature | `feat/cloudformation-parser` |
+| `fix/` | Bug fix | `fix/scoring-division-error` |
+| `docs/` | Documentation only | `docs/update-api-reference` |
+| `refactor/` | Code restructure (no behavior change) | `refactor/scanner-pipeline` |
+| `test/` | Adding or updating tests | `test/iam-wildcard-edge-cases` |
+| `chore/` | Config, CI, dependencies | `chore/upgrade-fastapi` |
+
+### Commit Message Convention
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>: <short summary>
+
+<optional body>
+```
+
+**Examples:**
+```
+feat: add CloudFormation YAML parser
+fix: handle empty ingress blocks in SSH rule
+docs: update API reference with upload endpoint
+test: add edge case tests for risk scoring
+chore: bump SQLAlchemy to 2.1
+```
+
+### Pull Request Workflow
+
+1. **Fork** the repository (or create a branch from `main`)
+2. **Create a feature branch** following the naming convention above
+3. **Make changes** — keep PRs focused on a single concern
+4. **Run quality checks locally** before pushing:
+   ```bash
+   # Backend
+   cd backend && source venv/bin/activate
+   make lint        # ruff + black + mypy
+   make test-backend  # pytest with coverage
+
+   # Frontend
+   cd frontend
+   npx tsc --noEmit  # Type check
+   npm test           # Vitest
+   npm run build      # Production build
+   ```
+5. **Push** and open a PR against `main`
+6. **CI must pass** — all 5 GitHub Actions jobs (backend-lint, backend-test, frontend-lint, frontend-test, docker-build)
+7. **Code review** — at least one approval required
+
+### Code Quality Requirements
+
+All PRs must meet these gates before merge:
+
+| Check | Requirement |
+|-------|-------------|
+| Backend tests | All passing, ≥85% coverage |
+| Frontend tests | All passing |
+| ruff | 0 lint errors |
+| black | 0 formatting changes |
+| mypy | 0 type errors |
+| tsc | 0 TypeScript errors |
+| Build | `npm run build` succeeds |
+| Pre-commit | All hooks pass (`make hooks` to install) |
+
+### Local Development Workflow
+
+```bash
+# 1. Clone and set up
+git clone https://github.com/SimeonDee/Enterprise-Security-Guardrail-Auditor.git
+cd Enterprise-Security-Guardrail-Auditor
+
+# 2. Install pre-commit hooks
+make hooks
+
+# 3. Backend setup
+cd backend
+python -m venv venv && source venv/bin/activate
+pip install -e ".[dev]"
+cp .env.example .env
+
+# 4. Frontend setup
+cd ../frontend
+npm ci
+
+# 5. Start development servers
+make backend    # Terminal 1: uvicorn on port 8000
+make frontend   # Terminal 2: Vite on port 5173
+
+# 6. Run checks before committing
+make lint       # All linters
+make test       # All tests
+```
+
+See [docs/dev-workflow.md](docs/dev-workflow.md) for the full developer guide.
+
+## AI-Assisted Development
+
+This project was built using **AI-assisted development** with **GitHub Copilot (Claude Opus 4.6)**. Every prompt and action is recorded in [prompts.md](prompts.md). The full development — from scaffold to production-ready MVP — was completed in 12 turns of structured interaction.
+
+## Author
+
+**Simeon Adedokun**
+
+- GitHub: [@SimeonDee](https://github.com/SimeonDee)
 
 ## License
 

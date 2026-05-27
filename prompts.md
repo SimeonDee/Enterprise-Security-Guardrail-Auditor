@@ -467,3 +467,117 @@ Final documentation pack for project submission. Rewrote root README.md with bad
 - Created `docs/final-summary.md` — project retrospective with architecture, scoring, scanner design, tradeoffs, roadmap, AI workflow, quality metrics
 - Updated `prompts.md` — Turn 9 entry
 - Updated `to-do.md` — final completion status
+
+---
+
+## Turn 10 — CI Pipeline Fix
+**Timestamp:** 2026-05-27 T+60min
+
+### Exact Prompt
+> Fix the CI pipeline run error with the error message below:
+> ---
+> Processing ./.
+>   Installing build dependencies: started
+>   Installing build dependencies: finished with status 'done'
+>   Getting requirements to build wheel: started
+>   Getting requirements to build wheel: finished with status 'error'
+>   error: subprocess-exited-with-error
+>
+>   × Getting requirements to build wheel did not run successfully.
+>   │ exit code: 1
+>   ╰─> [14 lines of output]
+>       error: Multiple top-level packages discovered in a flat-layout: ['app', 'alembic'].
+>
+>       To avoid accidental inclusion of unwanted files or directories,
+>       setuptools will not proceed with this build.
+>
+>       If you are trying to create a single distribution with multiple packages
+>       on purpose, you should not rely on automatic discovery.
+>       Instead, consider the following options:
+>
+>       1. set up custom discovery (`find` directive with `include` or `exclude`)
+>       2. use a `src-layout`
+>       3. explicitly set `py_modules` or `packages` with a list of names
+>
+>       To find more information, look for "package discovery" on setuptools docs.
+>       [end of output]
+>
+>   note: This error originates from a subprocess, and is likely not a problem with pip.
+> ERROR: Failed to build 'file:///home/runner/work/Enterprise-Security-Guardrail-Auditor/Enterprise-Security-Guardrail-Auditor/backend' when getting requirements to build wheel
+> Error: Process completed with exit code 1.
+
+### Summary
+CI pipeline failed because setuptools auto-discovered both `app` and `alembic` as top-level packages in the backend flat-layout. Fixed by adding `[tool.setuptools.packages.find]` with `include = ["app*"]` to restrict package discovery to the `app` package only. Verified fix locally with `pip install -e ".[dev]"`. Committed and pushed.
+
+### Action
+- Added `[tool.setuptools.packages.find]` section with `include = ["app*"]` to `backend/pyproject.toml`
+- Verified local build succeeds with `pip install -e ".[dev]"`
+- Committed (`613ad5d`) and pushed to `origin/main`
+
+---
+
+## Turn 11 — Final System Validation
+**Timestamp:** 2026-05-27 T+65min
+
+### Exact Prompt
+> FINAL SYSTEM VALIDATION
+>
+> Act as release engineer.
+>
+> Validate entire system end-to-end.
+>
+> Check:
+> - all tests passing
+> - backend runs successfully
+> - frontend builds successfully
+> - API integration works
+> - Docker compose runs correctly
+> - documentation completeness
+> - prompts.md completeness
+> - to-do.md completion status
+>
+> Output:
+> - release readiness report
+> - known issues list
+> - deployment checklist
+> - final MVP sign-off summary
+>
+> No new features allowed. Only verification, debugging, and fixes.
+
+### Summary
+Full end-to-end system validation. Backend: 97 tests passing, 94.65% coverage, all 3 linters clean. Frontend: 24 tests passing, tsc clean, production build successful. API: all endpoints verified (health, CRUD scans, dashboard, guardrails). Docker: both images build successfully, docker compose up runs with healthy containers. Documentation: 12 docs + 2 sub-READMEs + all config files verified present. prompts.md: 11 turns complete. to-do.md: 74 items completed, 22 post-MVP items remaining.
+
+### Action
+- Verified backend: 97 tests, 94.65% coverage, ruff/black/mypy all clean
+- Verified frontend: 24 tests, tsc clean, Vite production build successful
+- Verified API: health, POST /scans, GET /scans, GET /scans/{id}, GET /dashboard/summary, DELETE /scans/{id} — all returning correct responses
+- Verified Docker: both images build, docker compose up brings healthy backend (port 8000) + frontend (port 3000)
+- Verified documentation: 12 docs, 2 sub-READMEs, CI, pre-commit, Makefile, .env files all present
+- Verified prompts.md: 11 turns recorded with exact prompts, summaries, and actions
+- Generated release readiness report
+
+---
+
+## Turn 12 — Sample Files & Contributor Docs
+**Timestamp:** 2026-05-27 T+70–75min
+
+### Exact Prompt
+> Generate hypothetical Terraform configuration files with security vulnerabilities for testing and validation of the MVP application. Create files in an appropriate sample directory.
+>
+> Enhance and update the project documentation with the latest changes and include contributor workflow:
+> - Author information
+> - Contributing Guidelines
+> - Pull Request (PR) Workflow
+> - Branch naming convention
+> - Commit message convention
+> - Local development workflow
+> - Code quality requirements before PR approval
+> - Links to relevant docs/ markdown files
+
+### Summary
+Created two sample Terraform files with intentional vulnerabilities (11 + 9 findings) covering all 5 engine rules and seed guardrails, with clean resources as false-positive controls. Enhanced README.md with author info, contributing guidelines, PR workflow, branch naming and commit message conventions, code quality requirements, local development workflow, and sample test file documentation.
+
+### Action
+- Created `samples/vulnerable-infra.tf` — 11 vulnerabilities across all rule types + clean controls
+- Created `samples/multi-service-vulnerable.tf` — 9 vulnerabilities with edge cases (wide port range, group/user IAM policies, authenticated-read ACL)
+- Enhanced `README.md` — added Sample Test Files section, Contributing (branch naming, commit convention, PR workflow, code quality gates, local dev workflow), Author, updated AI-assisted development section
