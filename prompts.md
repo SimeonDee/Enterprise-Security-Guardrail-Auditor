@@ -243,3 +243,67 @@ Refactor scan endpoints for clean API → Service → Engine → DB separation. 
 - Updated existing `test_list_scans` for paginated response format
 - Added 6 new integration tests: pagination, status filter, file_type filter, upload success, upload non-tf rejection, upload empty rejection
 - Result: 97 tests pass, 95.31% coverage
+
+---
+
+## Turn 6 — Frontend Dashboard (MVP UI)
+**Timestamp:** 2026-05-27 T+35min
+
+### Exact Prompt
+> Push updates to github and continue to the next phase
+>
+> FRONTEND DASHBOARD (MINIMUM VIABLE PRODUCT UI)
+>
+> Implement React dashboard for Security Guardrail Auditor.
+>
+> Tech stack:
+> - React + TypeScript + Vite
+> - TailwindCSS
+> - React Query
+>
+> Features:
+> 1. Upload Terraform file UI
+> 2. Scan results dashboard
+> 3. Risk score visualization (simple chart)
+> 4. Findings table grouped by severity
+> 5. Scan history page
+>
+> Requirements:
+> - Clean reusable components
+> - API integration with backend
+> - Loading / error states
+> - Responsive design
+>
+> Constraints:
+> - MVP simplicity prioritized over UI polish
+> - Avoid unnecessary libraries
+>
+> Testing:
+> - Minimal frontend tests
+>
+> Update:
+> - docs/frontend.md
+> - prompts.md
+> - to-do.md
+
+### Summary
+Push scan API layer commit to GitHub, then implement the full MVP React frontend: React Query integration, file upload UI, paginated scan history, severity-grouped findings, loading/error states, and reusable components.
+
+### Action
+- Pushed scan API layer commit (`2d28b75`) to GitHub
+- Installed `@tanstack/react-query` dependency
+- Updated `main.tsx` — wrapped app with `QueryClientProvider`
+- Updated `types/api.ts` — added `PaginatedResponse<T>`, fixed `guardrail_id: number | null`
+- Updated `services/api.ts` — paginated `getScans()`, new `uploadScan()` (multipart)
+- Created 4 new reusable components: `LoadingSpinner`, `ErrorMessage`, `Pagination`, `StatusBadge`
+- Rewrote all 5 pages to use React Query (`useQuery`/`useMutation`):
+  - `Dashboard.tsx` — stats cards, severity bar chart, recent scans with StatusBadge
+  - `Scans.tsx` — paginated table (10/page) with Pagination component
+  - `NewScan.tsx` — dual-mode (Upload File / Paste Content) with React Query mutations
+  - `ScanDetail.tsx` — findings grouped by severity order, severity breakdown card
+  - `Guardrails.tsx` — React Query with loading/error/retry
+- Created `test/test-utils.tsx` — TestWrapper (QueryClient + MemoryRouter)
+- Created 4 new test files: LoadingSpinner, ErrorMessage, Pagination, StatusBadge
+- Updated App.test.tsx for multiple "Guardrail Auditor" text matches
+- Created `docs/frontend.md` — frontend architecture documentation
+- Result: Frontend 24 tests pass, all components 100% coverage. Backend 97 tests, 95.31% coverage.

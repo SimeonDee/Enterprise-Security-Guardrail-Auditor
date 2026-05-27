@@ -38,7 +38,7 @@ export interface ScanDetail extends Scan {
 export interface Violation {
     id: number;
     scan_id: number;
-    guardrail_id: number;
+    guardrail_id: number | null;
     resource_name: string;
     file_path: string;
     line_number: number | null;
@@ -67,4 +67,12 @@ export interface ScanCreatePayload {
     file_type: "terraform" | "cloudformation";
     source_content: string;
     file_name: string;
+}
+
+export interface PaginatedResponse<T> {
+    items: T[];
+    total: number;
+    page: number;
+    page_size: number;
+    total_pages: number;
 }

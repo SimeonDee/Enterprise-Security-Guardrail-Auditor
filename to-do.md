@@ -38,6 +38,13 @@
 - [x] PaginatedResponse generic schema
 - [x] docs/api-reference.md — full API reference
 - [x] 97 tests, 95.31% coverage
+- [x] Frontend MVP — React Query, file upload, paginated scan history
+- [x] Dashboard page — stats cards, severity chart, recent scans
+- [x] Scan Detail — findings grouped by severity
+- [x] New Scan — dual-mode (upload file / paste content)
+- [x] Reusable components — LoadingSpinner, ErrorMessage, Pagination, StatusBadge
+- [x] Frontend tests — 24 tests, all components 100% coverage
+- [x] docs/frontend.md — frontend architecture
 
 ## 🔲 Next Up (MVP Completion)
 - [ ] Seed guardrails on first startup (auto-seed endpoint or startup event)
