@@ -45,19 +45,37 @@
 - [x] Reusable components — LoadingSpinner, ErrorMessage, Pagination, StatusBadge
 - [x] Frontend tests — 24 tests, all components 100% coverage
 - [x] docs/frontend.md — frontend architecture
+- [x] QA + Security Audit — 26 findings cataloged, 10 fixed
+- [x] Linting compliance — ruff, black, mypy, tsc all clean (0 errors)
+- [x] Scan failure handling — run_scan catches exceptions, sets FAILED status
+- [x] Upload file size limit (10 MB) + UTF-8 validation
+- [x] Guardrails limit parameter constrained (max 500)
+- [x] Fixed duplicate log handler bug
+- [x] Removed unused imports, converted enums to StrEnum
+- [x] TYPE_CHECKING imports for mypy forward-ref resolution
+- [x] docs/security-audit.md — full security findings report
+- [x] docs/qa-report.md — comprehensive QA report
 
 ## 🔲 Next Up (MVP Completion)
 - [ ] Seed guardrails on first startup (auto-seed endpoint or startup event)
 - [ ] CloudFormation YAML/JSON parsing support in scanner
 - [ ] Add more guardrail rules (Azure, GCP)
 - [ ] Error boundary in React frontend
-- [ ] Loading states / skeleton loaders
+- [ ] ESLint config for frontend (eslint.config.js)
 - [ ] API key authentication middleware
 - [ ] Export scan results as PDF/CSV
 - [ ] CI/CD pipeline (GitHub Actions)
 
 ## 🔮 Post-MVP
-- [ ] Async scan processing (background tasks)
+- [ ] Authentication / Authorization (JWT/OAuth2)
+- [ ] Async scan processing (background tasks / asyncio.to_thread)
+- [ ] Secret redaction in source_content before storage
+- [ ] Parser: handle braces inside quoted strings
+- [ ] Parser: support indented resource declarations
+- [ ] Open SSH rule: check ipv6_cidr_blocks
+- [ ] Encryption rule: flag missing encryption keys (not just explicit false)
+- [ ] Disable OpenAPI docs in production
+- [ ] Dependency lockfile for reproducible builds
 - [ ] Scan history comparison / trend charts
 - [ ] Custom guardrail creation via frontend UI
 - [ ] Multi-file / zip upload scanning

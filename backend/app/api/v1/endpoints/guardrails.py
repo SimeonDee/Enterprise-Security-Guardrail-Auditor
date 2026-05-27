@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +13,7 @@ router = APIRouter()
 @router.get("/", response_model=list[GuardrailResponse])
 async def list_guardrails(
     skip: int = 0,
-    limit: int = 100,
+    limit: int = Query(100, ge=1, le=500),
     enabled: bool | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> list[Guardrail]:

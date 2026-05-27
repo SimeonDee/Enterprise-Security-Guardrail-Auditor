@@ -7,25 +7,35 @@ These are seeded into the database on first run.
 BUILTIN_RULES = [
     {
         "name": "Public S3 Bucket ACL",
-        "description": "S3 bucket has a public ACL (public-read or public-read-write), exposing data to the internet.",
+        "description": (
+            "S3 bucket has a public ACL (public-read or "
+            "public-read-write), exposing data to the internet."
+        ),
         "severity": "critical",
         "provider": "aws",
         "resource_type": "aws_s3_bucket",
         "pattern": r"acl\s*=\s*\"(public-read|public-read-write)\"",
-        "remediation": "Set the ACL to 'private' and use bucket policies for controlled access.",
+        "remediation": (
+            "Set the ACL to 'private' and use bucket policies " "for controlled access."
+        ),
     },
     {
         "name": "Open SSH Port (0.0.0.0/0)",
-        "description": "Security group allows SSH (port 22) from any IP address.",
+        "description": ("Security group allows SSH (port 22) from " "any IP address."),
         "severity": "critical",
         "provider": "aws",
         "resource_type": "aws_security_group",
         "pattern": r"(from_port\s*=\s*22|to_port\s*=\s*22).*",
-        "remediation": "Restrict SSH access to specific CIDR blocks or use a bastion host.",
+        "remediation": (
+            "Restrict SSH access to specific CIDR blocks " "or use a bastion host."
+        ),
     },
     {
         "name": "Open CIDR Block 0.0.0.0/0",
-        "description": "A security rule allows ingress from 0.0.0.0/0, exposing resources to the entire internet.",
+        "description": (
+            "A security rule allows ingress from 0.0.0.0/0, "
+            "exposing resources to the entire internet."
+        ),
         "severity": "high",
         "provider": "aws",
         "resource_type": "aws_security_group",
@@ -34,65 +44,83 @@ BUILTIN_RULES = [
     },
     {
         "name": "Unencrypted RDS Instance",
-        "description": "RDS instance does not have storage encryption enabled.",
+        "description": ("RDS instance does not have storage encryption " "enabled."),
         "severity": "high",
         "provider": "aws",
         "resource_type": "aws_db_instance",
         "pattern": r"storage_encrypted\s*=\s*false",
-        "remediation": "Set storage_encrypted = true to enable encryption at rest.",
+        "remediation": (
+            "Set storage_encrypted = true to enable " "encryption at rest."
+        ),
     },
     {
         "name": "Public RDS Instance",
-        "description": "RDS instance is publicly accessible from the internet.",
+        "description": ("RDS instance is publicly accessible from " "the internet."),
         "severity": "critical",
         "provider": "aws",
         "resource_type": "aws_db_instance",
         "pattern": r"publicly_accessible\s*=\s*true",
-        "remediation": "Set publicly_accessible = false and use VPC security groups.",
+        "remediation": (
+            "Set publicly_accessible = false and use " "VPC security groups."
+        ),
     },
     {
         "name": "Missing CloudTrail Logging",
-        "description": "CloudTrail is not enabled or multi-region is disabled.",
+        "description": ("CloudTrail is not enabled or multi-region " "is disabled."),
         "severity": "high",
         "provider": "aws",
         "resource_type": "aws_cloudtrail",
         "pattern": r"is_multi_region_trail\s*=\s*false",
-        "remediation": "Enable multi-region CloudTrail for comprehensive audit logging.",
+        "remediation": (
+            "Enable multi-region CloudTrail for " "comprehensive audit logging."
+        ),
     },
     {
         "name": "Unencrypted EBS Volume",
-        "description": "EBS volume is created without encryption.",
+        "description": ("EBS volume is created without encryption."),
         "severity": "medium",
         "provider": "aws",
         "resource_type": "aws_ebs_volume",
         "pattern": r"encrypted\s*=\s*false",
-        "remediation": "Set encrypted = true on all EBS volumes.",
+        "remediation": ("Set encrypted = true on all EBS volumes."),
     },
     {
         "name": "S3 Bucket Versioning Disabled",
-        "description": "S3 bucket does not have versioning enabled, risking data loss.",
+        "description": (
+            "S3 bucket does not have versioning enabled, " "risking data loss."
+        ),
         "severity": "medium",
         "provider": "aws",
         "resource_type": "aws_s3_bucket",
         "pattern": r"versioning\s*\{[^}]*enabled\s*=\s*false",
-        "remediation": "Enable versioning on the S3 bucket for data protection.",
+        "remediation": ("Enable versioning on the S3 bucket for " "data protection."),
     },
     {
         "name": "IAM User with Inline Policy",
-        "description": "IAM user has an inline policy attached directly, violating least-privilege best practices.",
+        "description": (
+            "IAM user has an inline policy attached directly, "
+            "violating least-privilege best practices."
+        ),
         "severity": "medium",
         "provider": "aws",
         "resource_type": "aws_iam_user_policy",
         "pattern": r"resource\s+\"aws_iam_user_policy\"",
-        "remediation": "Use managed IAM policies and attach them via groups or roles.",
+        "remediation": (
+            "Use managed IAM policies and attach them " "via groups or roles."
+        ),
     },
     {
         "name": "Wildcard IAM Action",
-        "description": "IAM policy grants wildcard (*) actions, providing overly permissive access.",
+        "description": (
+            "IAM policy grants wildcard (*) actions, "
+            "providing overly permissive access."
+        ),
         "severity": "critical",
         "provider": "aws",
         "resource_type": "aws_iam_policy",
         "pattern": r"\"Action\"\s*:\s*\"\*\"",
-        "remediation": "Replace wildcard actions with specific, least-privilege permissions.",
+        "remediation": (
+            "Replace wildcard actions with specific, " "least-privilege permissions."
+        ),
     },
 ]

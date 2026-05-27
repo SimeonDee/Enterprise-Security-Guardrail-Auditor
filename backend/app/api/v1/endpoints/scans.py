@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.core.exceptions import ValidationError
 from app.database import get_db
 from app.models.scan import FileType, ScanStatus
@@ -13,6 +14,7 @@ from app.schemas.scan import (
 from app.services.scanner import ScannerService
 
 router = APIRouter()
+settings = get_settings()
 
 
 def _get_service(db: AsyncSession = Depends(get_db)) -> ScannerService:
@@ -63,7 +65,14 @@ async def upload_scan(
     if not content_bytes:
         raise ValidationError("Uploaded file is empty.")
 
-    source_content = content_bytes.decode("utf-8")
+    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+    if len(content_bytes) > max_bytes:
+        raise ValidationError(f"File exceeds {settings.MAX_UPLOAD_SIZE_MB} MB limit.")
+
+    try:
+        source_content = content_bytes.decode("utf-8")
+    except UnicodeDecodeError:
+        raise ValidationError("File is not valid UTF-8 text.") from None
 
     payload = ScanCreate(
         name=name,

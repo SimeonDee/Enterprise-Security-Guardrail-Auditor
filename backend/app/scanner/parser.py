@@ -26,7 +26,6 @@ class TerraformParser:
 
     def parse(self, content: str) -> list[ParsedResource]:
         resources: list[ParsedResource] = []
-        lines = content.splitlines()
 
         for match in _RESOURCE_RE.finditer(content):
             res_type = match.group(1)

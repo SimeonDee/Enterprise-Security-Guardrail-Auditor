@@ -1,20 +1,26 @@
+from __future__ import annotations
+
 import enum
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Enum, Float, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
+if TYPE_CHECKING:
+    from app.models.violation import Violation
 
-class ScanStatus(str, enum.Enum):
+
+class ScanStatus(enum.StrEnum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
 
 
-class FileType(str, enum.Enum):
+class FileType(enum.StrEnum):
     TERRAFORM = "terraform"
     CLOUDFORMATION = "cloudformation"
 

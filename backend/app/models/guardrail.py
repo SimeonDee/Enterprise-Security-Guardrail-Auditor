@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 import enum
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum, Float, Integer, String, Text, func
+from sqlalchemy import DateTime, Enum, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
+if TYPE_CHECKING:
+    from app.models.violation import Violation
 
-class Severity(str, enum.Enum):
+
+class Severity(enum.StrEnum):
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -15,7 +21,7 @@ class Severity(str, enum.Enum):
     INFO = "info"
 
 
-class Provider(str, enum.Enum):
+class Provider(enum.StrEnum):
     AWS = "aws"
     AZURE = "azure"
     GCP = "gcp"

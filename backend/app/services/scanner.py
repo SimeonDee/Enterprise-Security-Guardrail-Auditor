@@ -1,6 +1,7 @@
+import logging
 import math
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,8 +12,9 @@ from app.models.guardrail import Guardrail
 from app.models.scan import FileType, Scan, ScanStatus
 from app.models.violation import Violation
 from app.scanner.engine import ScanEngine
-from app.scanner.models import ScanResult as EngineScanResult
 from app.schemas.scan import PaginatedResponse, ScanCreate, ScanResponse
+
+logger = logging.getLogger("guardrail_auditor")
 
 # Severity weights for risk score calculation
 SEVERITY_WEIGHTS = {
@@ -101,74 +103,82 @@ class ScannerService:
         self.db.add(scan)
         await self.db.flush()
 
-        # --- New engine-based scanning ---
-        engine_result = self._engine.scan(
-            content=payload.source_content,
-            file_name=payload.file_name,
-        )
-
-        # --- Legacy DB-rule scanning (keeps backward compat) ---
-        stmt = select(Guardrail).where(Guardrail.enabled == True)  # noqa: E712
-        result = await self.db.execute(stmt)
-        guardrails = result.scalars().all()
-
-        violations: list[Violation] = []
-
-        # Violations from new engine
-        for finding in engine_result.findings:
-            violation = Violation(
-                scan_id=scan.id,
-                guardrail_id=None,
-                resource_name=finding.resource_name,
-                file_path=finding.file_path,
-                line_number=finding.line_number,
-                severity=finding.severity,
-                message=f"[{finding.rule_id}] {finding.message}",
-                remediation=finding.remediation,
-            )
-            violations.append(violation)
-
-        # Violations from legacy DB guardrails
-        for guardrail in guardrails:
-            found = self._check_pattern(
+        try:
+            # --- New engine-based scanning ---
+            engine_result = self._engine.scan(
                 content=payload.source_content,
-                pattern=guardrail.pattern,
-                guardrail=guardrail,
-                scan=scan,
                 file_name=payload.file_name,
             )
-            violations.extend(found)
 
-        # Deduplicate by (resource_name, severity, line_number)
-        seen: set[tuple[str, str, int | None]] = set()
-        unique_violations: list[Violation] = []
-        for v in violations:
-            key = (v.resource_name, v.severity, v.line_number)
-            if key not in seen:
-                seen.add(key)
-                unique_violations.append(v)
+            # --- Legacy DB-rule scanning (keeps backward compat) ---
+            guardrail_stmt = select(Guardrail).where(
+                Guardrail.enabled == True  # noqa: E712
+            )
+            guardrail_result = await self.db.execute(guardrail_stmt)
+            guardrails = guardrail_result.scalars().all()
 
-        self.db.add_all(unique_violations)
+            violations: list[Violation] = []
 
-        scan.total_violations = len(unique_violations)
-        scan.risk_score = (
-            engine_result.risk_score
-            if engine_result.findings
-            else self._calculate_risk_score(unique_violations)
-        )
-        scan.status = ScanStatus.COMPLETED
-        scan.completed_at = datetime.now(timezone.utc)
+            # Violations from new engine
+            for finding in engine_result.findings:
+                violation = Violation(
+                    scan_id=scan.id,
+                    guardrail_id=None,
+                    resource_name=finding.resource_name,
+                    file_path=finding.file_path,
+                    line_number=finding.line_number,
+                    severity=finding.severity,
+                    message=f"[{finding.rule_id}] {finding.message}",
+                    remediation=finding.remediation,
+                )
+                violations.append(violation)
+
+            # Violations from legacy DB guardrails
+            for guardrail in guardrails:
+                found = self._check_pattern(
+                    content=payload.source_content,
+                    pattern=guardrail.pattern,
+                    guardrail=guardrail,
+                    scan=scan,
+                    file_name=payload.file_name,
+                )
+                violations.extend(found)
+
+            # Deduplicate by (resource_name, severity, line_number)
+            seen: set[tuple[str, str, int | None]] = set()
+            unique_violations: list[Violation] = []
+            for v in violations:
+                key = (v.resource_name, v.severity, v.line_number)
+                if key not in seen:
+                    seen.add(key)
+                    unique_violations.append(v)
+
+            self.db.add_all(unique_violations)
+
+            scan.total_violations = len(unique_violations)
+            scan.risk_score = (
+                engine_result.risk_score
+                if engine_result.findings
+                else self._calculate_risk_score(unique_violations)
+            )
+            scan.status = ScanStatus.COMPLETED
+            scan.completed_at = datetime.now(UTC)
+
+        except Exception:
+            logger.exception("Scan %d failed", scan.id)
+            scan.status = ScanStatus.FAILED
+            scan.completed_at = datetime.now(UTC)
 
         await self.db.commit()
 
         # Re-fetch with violations eagerly loaded
-        stmt = (
+        refetch_stmt = (
             select(Scan)
             .where(Scan.id == scan.id)
             .options(selectinload(Scan.violations))
         )
-        result = await self.db.execute(stmt)
-        return result.scalars().one()
+        refetch_result = await self.db.execute(refetch_stmt)
+        return refetch_result.scalars().one()
 
     def _check_pattern(
         self,
@@ -178,7 +188,7 @@ class ScannerService:
         scan: Scan,
         file_name: str,
     ) -> list[Violation]:
-        violations = []
+        violations: list[Violation] = []
         lines = content.splitlines()
 
         try:

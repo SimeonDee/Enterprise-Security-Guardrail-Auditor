@@ -17,7 +17,8 @@ def setup_logging() -> logging.Logger:
 
     logger = logging.getLogger("guardrail_auditor")
     logger.setLevel(settings.log_level_int)
-    logger.addHandler(handler)
+    if not logger.handlers:
+        logger.addHandler(handler)
     logger.propagate = False
 
     return logger
