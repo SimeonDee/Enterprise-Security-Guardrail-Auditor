@@ -1,11 +1,45 @@
 # API Reference
 
-Base URL: `/api/v1`
+## Overview
+
+| Property | Value |
+|----------|-------|
+| Base URL | `/api/v1` |
+| Format | JSON |
+| Auth | None (MVP) |
+| OpenAPI | `GET /docs` (Swagger UI) |
+| Redoc | `GET /redoc` |
 
 All responses use JSON. Errors follow the format:
 
 ```json
 { "error": "ERROR_CODE", "detail": "Human-readable message" }
+```
+
+### HTTP Status Codes
+
+| Code | Meaning |
+|------|---------|
+| `200` | Success |
+| `201` | Created |
+| `204` | No content (successful delete) |
+| `404` | Resource not found |
+| `409` | Conflict (duplicate) |
+| `422` | Validation error |
+| `500` | Internal server error |
+
+### Pagination
+
+List endpoints return paginated responses:
+
+```json
+{
+  "items": [...],
+  "total": 42,
+  "page": 1,
+  "page_size": 20,
+  "total_pages": 3
+}
 ```
 
 ---

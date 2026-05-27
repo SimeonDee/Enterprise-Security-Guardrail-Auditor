@@ -65,6 +65,16 @@
 - [x] .dockerignore files (backend + frontend)
 - [x] docs/deployment.md — Docker deployment guide
 - [x] docs/dev-workflow.md — developer workflow guide
+- [x] Root README.md — professional GitHub-ready with badges
+- [x] backend/README.md — backend-specific documentation
+- [x] frontend/README.md — frontend-specific documentation
+- [x] docs/architecture.md — final refined version with full diagrams
+- [x] docs/api-reference.md — final version with overview section
+- [x] docs/security-rules.md — final version with legacy rules + coverage summary
+- [x] docs/presentation.md — 13-slide project presentation
+- [x] docs/final-summary.md — project retrospective with AI workflow
+- [x] prompts.md — complete audit log (9 turns)
+- [x] to-do.md — final completion status
 
 ## 🔲 Next Up (MVP Completion)
 - [ ] Seed guardrails on first startup (auto-seed endpoint or startup event)

@@ -201,3 +201,45 @@ class MyCustomRule(BaseRule):
             ))
         return findings
 ```
+
+---
+
+## Legacy Seed Guardrails (Database)
+
+In addition to the 5 engine rules, 10 regex-based guardrails are seeded into the database on first run. These use simple regex pattern matching against raw file content:
+
+| # | Name | Severity | Provider | Pattern |
+|---|------|----------|----------|---------|
+| 1 | Public S3 Bucket ACL | Critical | AWS | `acl\s*=\s*"(public-read\|public-read-write)"` |
+| 2 | Open SSH Ingress | Critical | AWS | `from_port\s*=\s*22.*cidr_blocks\s*=\s*\["0\.0\.0\.0/0"\]` |
+| 3 | Unencrypted RDS | High | AWS | `storage_encrypted\s*=\s*false` |
+| 4 | Wildcard IAM Policy | Critical | AWS | `"Action"\s*:\s*"\*"` |
+| 5 | Public RDS Instance | Critical | AWS | `publicly_accessible\s*=\s*true` |
+| 6 | Default VPC Usage | Medium | AWS | `aws_default_vpc` |
+| 7 | Missing CloudWatch Logs | Medium | AWS | `aws_cloudwatch_log_group` (negative check) |
+| 8 | Unencrypted EBS Volume | High | AWS | `encrypted\s*=\s*false` |
+| 9 | Overly Permissive SG Egress | Medium | AWS | `egress.*cidr_blocks\s*=\s*\["0\.0\.0\.0/0"\]` |
+| 10 | Missing Backup Configuration | Low | AWS | `backup_retention_period\s*=\s*0` |
+
+### Dual Scan Architecture
+
+When a scan runs, the `ScannerService` executes both paths:
+
+1. **Engine rules** — Structured `ParsedResource` evaluation via `ScanEngine`
+2. **Legacy rules** — Regex pattern matching via database `Guardrail` records
+
+Findings are deduplicated by `(resource_name, message)` before being stored as `Violation` records.
+
+---
+
+## Rule Coverage Summary
+
+| Category | Engine Rules | Seed Guardrails | Total |
+|----------|-------------|-----------------|-------|
+| S3 Security | 1 | 1 | 2 |
+| Network Security | 1 | 2 | 3 |
+| Database Security | 1 | 2 | 3 |
+| Encryption | 1 | 2 | 3 |
+| IAM | 1 | 1 | 2 |
+| General | 0 | 2 | 2 |
+| **Total** | **5** | **10** | **15** |
