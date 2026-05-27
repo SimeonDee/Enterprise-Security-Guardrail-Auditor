@@ -142,6 +142,8 @@ cd frontend && npm test
 ├── .pre-commit-config.yaml      # Pre-commit hooks
 ├── Makefile                     # Developer shortcuts
 ├── docker-compose.yml           # Docker orchestration
+├── prompts.md                   # AI prompt audit log
+├── to-do.md                    # Task tracking
 ├── backend/
 │   ├── app/
 │   │   ├── api/v1/endpoints/    # Route handlers
@@ -154,6 +156,7 @@ cd frontend && npm test
 │   │   │   └── engine.py        # Orchestrator
 │   │   ├── schemas/             # Pydantic request/response
 │   │   └── services/            # Business logic
+│   ├── alembic/                 # Database migrations
 │   └── tests/                   # 97 pytest tests
 ├── frontend/
 │   ├── src/
@@ -162,7 +165,15 @@ cd frontend && npm test
 │   │   ├── services/api.ts      # Axios API client
 │   │   └── types/api.ts         # TypeScript interfaces
 │   └── src/test/                # Vitest tests
-└── docs/                        # Project documentation
+├── docs/                        # Project documentation (12 files)
+├── samples/                     # Vulnerable Terraform test files
+├── scripts/                     # Utility scripts (PPTX generator)
+└── submission_assets/           # Submission deliverables
+    ├── aI-generated_presentation_deck/  # Presentation (.md + .pptx + script)
+    ├── tagle_ai_tag_output_summary_files/  # Tagle AI Tag outputs
+    ├── prompts.md               # Prompt audit log copy
+    ├── project_github_repo_link.md
+    └── submission_checklist.md
 ```
 
 ## Documentation
@@ -178,6 +189,7 @@ cd frontend && npm test
 | [Security Audit](docs/security-audit.md) | 26-finding security review |
 | [QA Report](docs/qa-report.md) | Quality assessment report |
 | [Presentation](docs/presentation.md) | Project overview slides |
+| [Presentation Deck](docs/presentation.pptx) | PowerPoint presentation (16 slides) |
 | [Final Summary](docs/final-summary.md) | Project retrospective |
 
 ## Sample Test Files
