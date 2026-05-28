@@ -221,9 +221,9 @@ Get a single guardrail by ID.
 
 **Errors** — `404` if not found.
 
-### `PUT /guardrails/{guardrail_id}`
+### `PATCH /guardrails/{guardrail_id}`
 
-Update a guardrail. All fields optional.
+Partially update a guardrail. All fields optional.
 
 ### `DELETE /guardrails/{guardrail_id}`
 

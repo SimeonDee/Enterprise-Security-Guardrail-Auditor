@@ -120,7 +120,7 @@ ci.yml
 2. **Make changes** and commit (pre-commit hooks run)
 3. **Push:** `git push -u origin feat/my-feature`
 4. **Open PR** against `main` — CI runs automatically
-5. **Review** — all 4 CI jobs must pass
+5. **Review** — all 5 CI jobs must pass
 6. **Merge** to `main` — CI runs again on the merge commit
 
 ---
@@ -158,6 +158,7 @@ Enterprise-Security-Guardrail-Auditor/
 │   ├── .env.docker            # Docker-specific env
 │   ├── Dockerfile             # Multi-stage Python image
 │   ├── pyproject.toml         # Dependencies + tool config
+│   ├── alembic/               # Database migrations
 │   ├── app/                   # Application code
 │   └── tests/                 # Pytest test suite
 ├── frontend/
@@ -166,6 +167,9 @@ Enterprise-Security-Guardrail-Auditor/
 │   ├── nginx.conf             # SPA routing + API proxy
 │   ├── package.json           # Dependencies
 │   └── src/                   # React source
+├── samples/                   # Vulnerable Terraform test files
+├── scripts/                   # Utility scripts (PPTX generator)
+├── submission_assets/         # Submission deliverables
 └── docs/                      # Project documentation
 ```
 

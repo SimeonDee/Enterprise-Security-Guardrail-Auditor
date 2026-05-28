@@ -191,7 +191,7 @@ make lint                       # Run all linters
 4. Every prompt recorded in `prompts.md` audit log
 
 **Results:**
-- 9 development turns over ~55 minutes of interaction
+- 13 development turns of structured interaction
 - 40+ files generated and refined
 - 97 backend tests + 24 frontend tests
 - Zero lint violations across 4 linters

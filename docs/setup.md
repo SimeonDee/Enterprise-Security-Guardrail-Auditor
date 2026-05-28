@@ -64,23 +64,22 @@ docker compose up --build
 - Frontend: http://localhost:3000
 - Backend: http://localhost:8000
 
+## Sample Test Files
+
+The `samples/` directory contains intentionally vulnerable Terraform files for testing:
+
+- `samples/vulnerable-infra.tf` — 11 vulnerabilities across all rule types
+- `samples/multi-service-vulnerable.tf` — 9 vulnerabilities with edge cases
+
+Upload these via the dashboard or API to validate the scanner.
+
 ## Seed Data
 
-To seed built-in guardrails, use the API:
+Built-in guardrails are seeded automatically when the application starts via the lifespan handler. You can also seed them manually through the guardrails API:
 
 ```bash
-# The seed script provides default rules — call via the API or run:
-python -c "
-from app.database import SessionLocal, engine, Base
-from app.models.guardrail import Guardrail
-from app.services.seed import BUILTIN_RULES
-
-Base.metadata.create_all(bind=engine)
-db = SessionLocal()
-for rule in BUILTIN_RULES:
-    if not db.query(Guardrail).filter(Guardrail.name == rule['name']).first():
-        db.add(Guardrail(**rule))
-db.commit()
-print(f'Seeded {len(BUILTIN_RULES)} guardrails')
-"
+# Create a guardrail via the API
+curl -X POST http://localhost:8000/api/v1/guardrails \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-rule", "description": "...", "severity": "high", "pattern": "...", "provider": "aws"}'
 ```

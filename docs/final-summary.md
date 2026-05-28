@@ -149,6 +149,10 @@ Each development phase followed a structured workflow:
 | 7 | QA + Security | 26 findings, 10 fixed, all linters clean |
 | 8 | DevOps | Docker, CI, pre-commit, env management |
 | 9 | Documentation | Full documentation suite for submission |
+| 10 | CI Pipeline Fix | setuptools flat-layout package discovery fix |
+| 11 | Final Validation | End-to-end system validation, release readiness |
+| 12 | Sample Files & Contributor Docs | Vulnerable .tf samples, README contributor workflow |
+| 13 | Presentation | PowerPoint deck generation (16 slides) |
 
 ### Key Observations
 
@@ -168,8 +172,8 @@ Each development phase followed a structured workflow:
 | Total files | 40+ |
 | Lint violations | 0 |
 | Security findings | 26 cataloged, 10 fixed |
-| Git commits | 9 |
-| Documentation files | 13 |
+| Git commits | 13+ |
+| Documentation files | 15+ |
 
 ## Repository
 
