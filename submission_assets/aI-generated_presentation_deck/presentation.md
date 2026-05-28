@@ -114,7 +114,43 @@ A score of **100** = all critical. A score of **0** = clean.
 
 ---
 
-## Slide 8: Quality & Testing
+## Slide 8: MVP App Screenshots — Dashboard & Scan History
+
+### Dashboard
+![Dashboard](../../screenshots/Dashboard.png)
+
+### Scan History
+![Scan History](../../screenshots/scan_history.png)
+
+---
+
+## Slide 9: MVP App Screenshots — New Scan Forms
+
+### File Upload Mode
+![New Scan File Upload](../../screenshots/New_Scan_File_Upload_Form_multi_service_infra_config.png)
+
+### Direct Entry Mode (S3/SG/IAM Config)
+![New Scan Direct Entry](../../screenshots/New_Scan_direct_entry_Form_AWS_S3_SG_IAM_infra_config.png)
+
+### Direct Input Mode (S3/RDS/EBS Config)
+![Scan Direct Input](../../screenshots/Scan_Direct_Input_Form_for_AWS_S3_RDS_EBS_Infra_Config.png)
+
+---
+
+## Slide 10: MVP App Screenshots — Scan Results
+
+### Results for Direct Entry (S3/SG/IAM)
+![Scan Results Direct Entry](../../screenshots/Scan_Results_for_Direct_Entry_AWS_S3_SG_IAM_infra_config.png)
+
+### Results for Direct Input (S3/RDS/EBS)
+![Scan Results Direct Input](../../screenshots/Scan_Results_for_Direct_input_AWS_S3_RDS_EBS_Infra_Config.png)
+
+### Results for Uploaded Multi-Service Config
+![Scan Results Uploaded](../../screenshots/Scan_Results_for_uploaded_multi_service_infra_config.png)
+
+---
+
+## Slide 11: Quality & Testing
 
 | Metric | Value |
 |--------|-------|
@@ -132,7 +168,7 @@ A score of **100** = all critical. A score of **0** = clean.
 
 ---
 
-## Slide 9: DevOps & Deployment
+## Slide 12: DevOps & Deployment
 
 - **Docker**: Multi-stage builds, non-root containers, healthchecks
 - **docker-compose**: One command to run the full stack
@@ -148,7 +184,7 @@ make lint                       # Run all linters
 
 ---
 
-## Slide 10: Tradeoffs & MVP Limitations
+## Slide 13: Tradeoffs & MVP Limitations
 
 | Limitation | Rationale | Future Fix |
 |------------|-----------|------------|
@@ -161,7 +197,7 @@ make lint                       # Run all linters
 
 ---
 
-## Slide 11: Future Roadmap
+## Slide 14: Future Roadmap
 
 **Near-term:**
 - API key authentication
@@ -180,7 +216,7 @@ make lint                       # Run all linters
 
 ---
 
-## Slide 12: AI-Assisted Development
+## Slide 15: AI-Assisted Development
 
 **Coding Assistant:** GitHub Copilot with Claude Opus 4.6
 
@@ -202,7 +238,7 @@ make lint                       # Run all linters
 
 ---
 
-## Slide 13: Summary
+## Slide 16: Summary
 
 **Enterprise Security Guardrail Auditor** delivers:
 

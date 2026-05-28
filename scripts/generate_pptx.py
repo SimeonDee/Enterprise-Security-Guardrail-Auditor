@@ -923,6 +923,184 @@ def slide_frontend(prs):
     )
 
 
+def _add_screenshot(slide, img_path, left, top, max_width, max_height):
+    """Add a screenshot image scaled to fit within max dimensions, preserving aspect ratio."""
+    from PIL import Image as PILImage
+
+    try:
+        with PILImage.open(img_path) as img:
+            img_w, img_h = img.size
+    except Exception:
+        # Fallback: add placeholder text if image can't be loaded
+        add_text_box(
+            slide,
+            left,
+            top,
+            max_width,
+            max_height,
+            f"[Screenshot: {os.path.basename(img_path)}]",
+            font_size=14,
+            color=MID_GRAY,
+            alignment=PP_ALIGN.CENTER,
+        )
+        return
+
+    aspect = img_w / img_h
+    target_w = max_width
+    target_h = int(target_w / aspect)
+    if target_h > max_height:
+        target_h = max_height
+        target_w = int(target_h * aspect)
+
+    slide.shapes.add_picture(img_path, left, top, target_w, target_h)
+
+
+def slide_screenshots_dashboard(prs):
+    """Slide 8b: MVP Screenshots — Dashboard & Scan History."""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_section_title(
+        slide,
+        "MVP App Screenshots — Dashboard & Scan History",
+        "Live application captures from the running MVP",
+    )
+
+    screenshots_dir = os.path.join(os.path.dirname(__file__), "..", "screenshots")
+    screenshots_dir = os.path.abspath(screenshots_dir)
+
+    # Dashboard screenshot — left side
+    add_text_box(
+        slide,
+        Inches(0.6),
+        Inches(2.0),
+        Inches(5.8),
+        Inches(0.4),
+        "Dashboard",
+        font_size=16,
+        color=ACCENT_BLUE,
+        bold=True,
+        alignment=PP_ALIGN.CENTER,
+    )
+    dashboard_img = os.path.join(screenshots_dir, "Dashboard.png")
+    _add_screenshot(
+        slide,
+        dashboard_img,
+        Inches(0.6),
+        Inches(2.5),
+        Inches(5.8),
+        Inches(4.2),
+    )
+
+    # Scan History screenshot — right side
+    add_text_box(
+        slide,
+        Inches(6.8),
+        Inches(2.0),
+        Inches(5.8),
+        Inches(0.4),
+        "Scan History",
+        font_size=16,
+        color=ACCENT_BLUE,
+        bold=True,
+        alignment=PP_ALIGN.CENTER,
+    )
+    history_img = os.path.join(screenshots_dir, "scan_history.png")
+    _add_screenshot(
+        slide,
+        history_img,
+        Inches(6.8),
+        Inches(2.5),
+        Inches(5.8),
+        Inches(4.2),
+    )
+
+
+def slide_screenshots_new_scan(prs):
+    """Slide 8c: MVP Screenshots — New Scan Forms."""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_section_title(
+        slide,
+        "MVP App Screenshots — New Scan Forms",
+        "File upload and direct content entry modes",
+    )
+
+    screenshots_dir = os.path.join(os.path.dirname(__file__), "..", "screenshots")
+    screenshots_dir = os.path.abspath(screenshots_dir)
+
+    scans = [
+        ("File Upload", "New_Scan_File_Upload_Form_multi_service_infra_config.png"),
+        (
+            "Direct Entry (S3/SG/IAM)",
+            "New_Scan_direct_entry_Form_AWS_S3_SG_IAM_infra_config.png",
+        ),
+        (
+            "Direct Input (S3/RDS/EBS)",
+            "Scan_Direct_Input_Form_for_AWS_S3_RDS_EBS_Infra_Config.png",
+        ),
+    ]
+
+    for i, (label, filename) in enumerate(scans):
+        x = Inches(0.4 + i * 4.2)
+        add_text_box(
+            slide,
+            x,
+            Inches(2.0),
+            Inches(3.9),
+            Inches(0.4),
+            label,
+            font_size=14,
+            color=ACCENT_BLUE,
+            bold=True,
+            alignment=PP_ALIGN.CENTER,
+        )
+        img_path = os.path.join(screenshots_dir, filename)
+        _add_screenshot(slide, img_path, x, Inches(2.5), Inches(3.9), Inches(4.2))
+
+
+def slide_screenshots_results(prs):
+    """Slide 8d: MVP Screenshots — Scan Results."""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_section_title(
+        slide,
+        "MVP App Screenshots — Scan Results",
+        "Security findings with severity grouping and risk scores",
+    )
+
+    screenshots_dir = os.path.join(os.path.dirname(__file__), "..", "screenshots")
+    screenshots_dir = os.path.abspath(screenshots_dir)
+
+    results = [
+        (
+            "Direct Entry (S3/SG/IAM)",
+            "Scan_Results_for_Direct_Entry_AWS_S3_SG_IAM_infra_config.png",
+        ),
+        (
+            "Direct Input (S3/RDS/EBS)",
+            "Scan_Results_for_Direct_input_AWS_S3_RDS_EBS_Infra_Config.png",
+        ),
+        (
+            "Uploaded Multi-Service",
+            "Scan_Results_for_uploaded_multi_service_infra_config.png",
+        ),
+    ]
+
+    for i, (label, filename) in enumerate(results):
+        x = Inches(0.4 + i * 4.2)
+        add_text_box(
+            slide,
+            x,
+            Inches(2.0),
+            Inches(3.9),
+            Inches(0.4),
+            label,
+            font_size=14,
+            color=ACCENT_BLUE,
+            bold=True,
+            alignment=PP_ALIGN.CENTER,
+        )
+        img_path = os.path.join(screenshots_dir, filename)
+        _add_screenshot(slide, img_path, x, Inches(2.5), Inches(3.9), Inches(4.2))
+
+
 def slide_tech_stack(prs):
     """Slide 9: Tech Stack."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
@@ -1523,14 +1701,17 @@ def main():
     slide_rules(prs)  # 6: Security Rules
     slide_scoring(prs)  # 7: Risk Scoring
     slide_frontend(prs)  # 8: Frontend Dashboard
-    slide_tech_stack(prs)  # 9: Tech Stack
-    slide_quality(prs)  # 10: Testing & QA
-    slide_devops(prs)  # 11: DevOps & Deployment
-    slide_limitations(prs)  # 12: MVP Limitations
-    slide_roadmap(prs)  # 13: Roadmap
-    slide_demo(prs)  # 14: Demo Flow
-    slide_closing(prs)  # 15: Closing Summary
-    slide_thank_you(prs)  # 16: Thank You
+    slide_screenshots_dashboard(prs)  # 9: Screenshots — Dashboard & History
+    slide_screenshots_new_scan(prs)  # 10: Screenshots — New Scan Forms
+    slide_screenshots_results(prs)  # 11: Screenshots — Scan Results
+    slide_tech_stack(prs)  # 12: Tech Stack
+    slide_quality(prs)  # 13: Testing & QA
+    slide_devops(prs)  # 14: DevOps & Deployment
+    slide_limitations(prs)  # 15: MVP Limitations
+    slide_roadmap(prs)  # 16: Roadmap
+    slide_demo(prs)  # 17: Demo Flow
+    slide_closing(prs)  # 18: Closing Summary
+    slide_thank_you(prs)  # 19: Thank You
 
     output_path = os.path.join(
         os.path.dirname(__file__), "..", "docs", "presentation.pptx"

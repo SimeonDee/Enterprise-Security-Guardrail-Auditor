@@ -23,6 +23,32 @@ Upload a Terraform (`.tf`) file and instantly receive:
 - **Visual dashboard** — severity breakdown charts, trend data, recent scan history
 - **Remediation guidance** — actionable fix recommendations for every finding
 
+## Screenshots
+
+### Dashboard
+![Dashboard](screenshots/Dashboard.png)
+
+### Scan History
+![Scan History](screenshots/scan_history.png)
+
+### New Scan — File Upload
+![New Scan File Upload](screenshots/New_Scan_File_Upload_Form_multi_service_infra_config.png)
+
+### New Scan — Direct Entry
+![New Scan Direct Entry](screenshots/New_Scan_direct_entry_Form_AWS_S3_SG_IAM_infra_config.png)
+
+### New Scan — Direct Input (S3/RDS/EBS)
+![Scan Direct Input](screenshots/Scan_Direct_Input_Form_for_AWS_S3_RDS_EBS_Infra_Config.png)
+
+### Scan Results — Direct Entry (S3/SG/IAM)
+![Scan Results Direct Entry](screenshots/Scan_Results_for_Direct_Entry_AWS_S3_SG_IAM_infra_config.png)
+
+### Scan Results — Direct Input (S3/RDS/EBS)
+![Scan Results Direct Input](screenshots/Scan_Results_for_Direct_input_AWS_S3_RDS_EBS_Infra_Config.png)
+
+### Scan Results — Uploaded File (Multi-Service)
+![Scan Results Uploaded](screenshots/Scan_Results_for_uploaded_multi_service_infra_config.png)
+
 ## Architecture
 
 ```
@@ -32,9 +58,9 @@ Upload a Terraform (`.tf`) file and instantly receive:
 │   Tailwind + Recharts  │          │  Routes → Services → Models  │
 └────────────────────────┘          │                              │
                                     │  ┌────────────────────────┐  │
-                                    │  │   Scanner Engine        │  │
-                                    │  │   Parser → Rules →      │  │
-                                    │  │   Scoring → Results     │  │
+                                    │  │   Scanner Engine       │  │
+                                    │  │   Parser → Rules →     │  │
+                                    │  │   Scoring → Results    │  │
                                     │  └────────────────────────┘  │
                                     │                              │
                                     │  SQLAlchemy + SQLite         │
